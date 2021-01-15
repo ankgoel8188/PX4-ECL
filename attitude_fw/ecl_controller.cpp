@@ -143,3 +143,12 @@ float ECL_Controller::constrain_airspeed(float airspeed, float minspeed, float m
 
 	return airspeed_result;
 }
+
+void ECL_Controller::set_RCAC_parameters(float P0_val, float lambda_val, int nf_val, float N1_val)
+{
+	RCAC_aw.set_RCAC_parameters(P0_val,lambda_val,nf_val,N1_val);
+	RCAC_aw.init_RCAC();
+}
+
+void ECL_Controller::set_RCAC_switch(int sw){RCAC_switch = sw;}
+int ECL_Controller::get_RCAC_switch(){return RCAC_switch;}

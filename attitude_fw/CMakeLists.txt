@@ -37,6 +37,7 @@ add_library(ecl_attitude_fw
 	ecl_roll_controller.cpp
 	ecl_wheel_controller.cpp
 	ecl_yaw_controller.cpp
+	RCAC.cpp
 	)
 add_dependencies(ecl_attitude_fw prebuild_targets)
 target_compile_definitions(ecl_attitude_fw PRIVATE -DMODULE_NAME="ecl/attitude_fw")

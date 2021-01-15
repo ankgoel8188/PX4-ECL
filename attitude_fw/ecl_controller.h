@@ -49,6 +49,7 @@
 #pragma once
 
 #include <ecl.h>
+#include "RCAC.h"
 
 struct ECL_ControlData {
 	float roll;
@@ -90,12 +91,15 @@ public:
 	void set_integrator_max(float max);
 	void set_max_rate(float max_rate);
 	void set_bodyrate_setpoint(float rate);
+	void set_RCAC_parameters(float P0_val, float lambda_val, int nf_val, float N1_val);
+	void set_RCAC_switch(int);
 
 	/* Getters */
 	float get_rate_error();
 	float get_desired_rate();
 	float get_desired_bodyrate();
 	float get_integrator();
+	int get_RCAC_switch();
 
 	void reset_integrator();
 
@@ -113,4 +117,6 @@ protected:
 	float _rate_setpoint;
 	float _bodyrate_setpoint;
 	float constrain_airspeed(float airspeed, float minspeed, float maxspeed);
+	RCAC RCAC_aw;
+	int RCAC_switch;
 };
