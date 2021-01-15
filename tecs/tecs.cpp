@@ -378,6 +378,9 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 				_throttle_integ_state = constrain(_throttle_integ_state, integ_state_min, integ_state_max);
 			}
 
+			RCAC_int = RCAC_int+_STE_error * _dt * STE_to_throttle;
+			RCAC_int = constrain(RCAC_int, integ_state_min, integ_state_max);
+
 		} else {
 			_throttle_integ_state = 0.0f;
 		}
@@ -391,8 +394,17 @@ void TECS::_update_throttle_setpoint(const float throttle_cruise, const matrix::
 			_throttle_setpoint = throttle_predicted;
 
 		}
-
+		rcac_throttle = RCAC_compute_uk(0.001f*_STE_error,RCAC_int,.01f*_STE_rate_error,rcac_throttle_applied);
+		if (true)
+		{
+			_throttle_setpoint = throttle_cruise+rcac_throttle;
+			// rcac_throttle = constrain(rcac_throttle, _throttle_setpoint_min, _throttle_setpoint_max);
+		}
 		_throttle_setpoint = constrain(_throttle_setpoint, _throttle_setpoint_min, _throttle_setpoint_max);
+		// _throttle_setpoint = _throttle_setpoint_max/2;
+		// _throttle_setpoint = rcac_throttle;
+		rcac_throttle_applied = _throttle_setpoint - throttle_cruise;
+		// _throttle_setpoint = throttle_cruise;
 	}
 }
 
@@ -647,4 +659,116 @@ void TECS::update_pitch_throttle(const matrix::Dcmf &rotMat, float pitch, float 
 		_tecs_mode = ECL_TECS_MODE_NORMAL;
 	}
 
+}
+
+void TECS::RCAC_set_parameters(float P0_val, float lambda_val, int nf_val, float N1_val)
+{
+	P0 = P0_val;
+	lambda = lambda_val;
+	nf = nf_val;
+	//     filtNu = filtNu_val;
+	N1 = N1_val;
+}
+
+
+void TECS::RCAC_init()
+{
+    P = matrix::eye<float, 3>() * P0;
+    theta.setZero();
+    filtNu(0,0)=0;
+    filtNu(0,1)=N1;
+    u_km1 = 0;
+    z_km1 = 0;
+
+    Phi_k.setZero();
+
+    ubar.setZero();
+    Phibar.setZero();
+
+    Phi_filt.setZero();
+
+    one_matrix = matrix::eye<float, 1>();
+}
+
+void TECS::RCAC_set_data(float zkm1, float ukm1)
+{
+    z_km1 = zkm1;
+    u_km1 = ukm1;
+}
+
+void TECS::RCAC_buildRegressor(float z, float z_int, float z_diff)
+{
+    Phi_k(0, 0) = z;
+    Phi_k(0, 1) = z_int;
+    Phi_k(0, 2) = z_diff;
+}
+
+void TECS::RCAC_filter_data()
+{
+    for (int ii = nf - 1; ii > 0; ii--)
+    {
+        ubar(ii, 0) = ubar(ii - 1, 0);
+    }
+    ubar(0, 0) = u_km1;
+
+    for (int ii = nf; ii > 0; ii--)
+    {
+        for (int jj = 0; jj < 3; jj++)
+        {
+            Phibar(ii, jj) = Phibar(ii - 1, jj);
+        }
+    }
+    for (int jj = 0; jj < 3; jj++)
+    {
+        Phibar(0, jj) = Phi_k(0, jj);
+    }
+
+    // UbarBlock = ubar.block(0, 0, nf - 1, 1);
+    // ubar.block(1, 0, nf - 1, 1) = UbarBlock;
+    // ubar(0, 0) = u_km1(0, 0);
+
+    // PhibarBlock = Phibar.block(0, 0, nf, 3);
+    // Phibar.block(1, 0, nf, 3) = PhibarBlock;
+    // Phibar.block(0, 0, 1, 3) = Phi_k;
+
+    z_filt = z_km1;
+
+    dummy = filtNu * ubar;
+    u_filt = dummy(0, 0);
+
+    for (int ii = 0; ii < nf; ii++)
+    {
+        for (int jj = 0; jj < 3; jj++)
+        {
+            PhibarBlock(ii, jj) = Phibar(ii + 1, jj);
+        }
+    }
+    Phi_filt = filtNu * PhibarBlock;
+}
+
+void TECS::RCAC_update_theta()
+{
+    if (kk > 3)
+    {
+        dummy = Phi_filt * P * Phi_filt.transpose();
+        Gamma = lambda + dummy(0, 0);
+        P = P - P * Phi_filt.transpose() * 1 / Gamma * Phi_filt * P;
+        P = P / lambda;
+
+        theta = theta - P * Phi_filt.transpose() * (z_filt * one_matrix + Phi_filt * theta - u_filt);
+    }
+    // cout << kk << "\t" << z_filt << "\t" << u_filt << "\t" << Phi_filt << "\t" << theta.transpose() << endl;
+}
+
+float TECS::RCAC_compute_uk(float z, float z_int, float z_diff, float u)
+{
+    RCAC_set_data(z, u);
+    RCAC_buildRegressor(z, z_int, z_diff);
+    RCAC_filter_data();
+    RCAC_update_theta();
+    dummy = Phi_k * theta;
+    u_k = dummy(0, 0);
+    // shift_data();
+    kk = kk + 1;
+    return u_k;
 }

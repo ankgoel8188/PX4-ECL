@@ -41,7 +41,7 @@
 
 #include <mathlib/mathlib.h>
 #include <matrix/math.hpp>
-
+// #include "RCAC.h"
 class TECS
 {
 public:
@@ -172,6 +172,23 @@ public:
 		_vert_accel_state = 0.0f;
 		_vert_vel_state = 0.0f;
 	}
+
+	void RCAC_set_parameters(float P0_val, float lambda_val, int nf_val, float N1_val);
+	void RCAC_init();
+	void RCAC_set_data(float, float);
+	void RCAC_buildRegressor(float zkm1, float zkm1_int, float zkm1_diff);
+	void RCAC_filter_data();
+	void RCAC_update_theta();
+	float RCAC_compute_uk(float, float, float, float);
+
+	int RCAC_getkk() 		{return kk;}
+	float RCAC_get_uk() 	{return u_k;}
+	float get_tecs_throttle() 	{return _throttle_setpoint;}
+	float get_rcac_throttle() 	{return rcac_throttle;}
+	float get_rcac_theta(int i) 	{return theta(i,0);}
+	float get_rcac_int_state() 	{return RCAC_int;}
+
+
 
 private:
 
@@ -328,4 +345,49 @@ private:
 	 */
 	void _update_STE_rate_lim();
 
+	float P0;
+	float lambda;
+	int nf;
+	float N1;
+
+
+
+protected:
+	matrix::Matrix<float, 1, 2> filtNu;
+	//RCAC Working variables
+	matrix::Matrix<float, 3, 3> P;
+	matrix::Matrix<float, 3, 1> theta;
+
+	float u_k, u_km1, u_filt;
+	float z_km1, z_filt;
+	matrix::Matrix<float, 1, 3> Phi_k, Phi_filt;
+
+	matrix::Matrix<float, 2, 1> ubar;        // Size nf by 1
+	matrix::Matrix<float, 3, 3> Phibar;      // Size nf+1 by 1
+	matrix::Matrix<float, 2, 3> PhibarBlock; // Size nf by 1
+
+	float Gamma;
+	float Idty_lz;
+	matrix::Matrix<float, 1, 1> one_matrix;
+	matrix::Matrix<float, 1, 1> dummy;
+
+    // float z_k = 0.0f;
+    // float z_diff = 0.0f;
+    float RCAC_int = 0.0f;
+
+	int kk = 0;
+
+    float rcac_throttle = 0.0f;
+    float rcac_throttle_applied = 0.0f;
+
 };
+
+// class RCAC
+// {
+//     float P0;
+//     float lambda;
+//     int nf;
+//     float N1;
+// };
+
+
