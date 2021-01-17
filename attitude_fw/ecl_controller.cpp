@@ -152,3 +152,7 @@ void ECL_Controller::set_RCAC_parameters(float P0_val, float lambda_val, int nf_
 
 void ECL_Controller::set_RCAC_switch(int sw){RCAC_switch = sw;}
 int ECL_Controller::get_RCAC_switch(){return RCAC_switch;}
+float ECL_Controller::get_RCAC_theta(int i) {
+float theta_i = RCAC_aw.get_rcac_theta(i);
+return theta_i;
+}

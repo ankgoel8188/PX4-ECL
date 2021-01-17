@@ -61,12 +61,12 @@ float ECL_RollController::control_attitude(const struct ECL_ControlData &ctl_dat
 	{
 		RCAC_aw.getkk();
 		float u_out = RCAC_aw.compute_uk(roll_error,0,0,_rate_setpoint);
-		cout << RCAC_aw.getkk() << "\t" <<
-			roll_error << "\t" <<
-			_rate_setpoint << "\t" <<
-			u_out << "\t" <<
-			RCAC_aw.get_rcac_theta(0)
-			<< endl;
+		// cout << RCAC_aw.getkk() << "\t" <<
+		// 	roll_error << "\t" <<
+		// 	_rate_setpoint << "\t" <<
+		// 	u_out << "\t" <<
+		// 	RCAC_aw.get_rcac_theta(0)
+		// 	<< endl;
 		_rate_setpoint = u_out;
 	}
 	return _rate_setpoint;

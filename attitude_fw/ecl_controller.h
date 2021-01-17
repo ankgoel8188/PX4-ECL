@@ -100,6 +100,9 @@ public:
 	float get_desired_bodyrate();
 	float get_integrator();
 	int get_RCAC_switch();
+	float get_RCAC_theta(int);
+	float get_RCAC_z(){return RCAC_aw.get_rcac_zkm1();}
+	float get_RCAC_u(){return RCAC_aw.get_rcac_uk();}
 
 	void reset_integrator();
 

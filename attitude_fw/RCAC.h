@@ -33,6 +33,7 @@ public:
     float get_rcac_theta(int i) {return theta(i,0);}
     float get_rcac_P(int i, int j){return P(i, j);};
     float get_rcac_Phi(int i) {return Phi_k(i,0);}
+    float get_rcac_zkm1() {return z_km1;}
 
     // void buildRegressor(Eigen::VectorXd &zIn);
     void set_RCAC_parameters(float P0_val, float lambda_val, int nf_val, float N1_val);
