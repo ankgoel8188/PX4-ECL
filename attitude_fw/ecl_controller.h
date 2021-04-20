@@ -92,17 +92,24 @@ public:
 	void set_max_rate(float max_rate);
 	void set_bodyrate_setpoint(float rate);
 	void set_RCAC_parameters(float P0_val, float lambda_val, int nf_val, float N1_val);
+	void set_RCAC_rate_parameters(float P0_val, float lambda_val, int nf_val, float N1_val);
 	void set_RCAC_switch(int);
+	void set_RCAC_rate_switch(int);
 
 	/* Getters */
 	float get_rate_error();
 	float get_desired_rate();
 	float get_desired_bodyrate();
 	float get_integrator();
-	int get_RCAC_switch();
+	int   get_RCAC_switch();
 	float get_RCAC_theta(int);
 	float get_RCAC_z(){return RCAC_aw.get_rcac_zkm1();}
 	float get_RCAC_u(){return RCAC_aw.get_rcac_uk();}
+
+	int   get_RCAC_rate_switch();
+	float get_RCAC_rate_theta(int);
+	float get_RCAC_rate_z(){return RCAC_rate.get_rcac_zkm1();}
+	float get_RCAC_rate_u(){return RCAC_rate.get_rcac_uk();}
 
 	void reset_integrator();
 
@@ -121,5 +128,7 @@ protected:
 	float _bodyrate_setpoint;
 	float constrain_airspeed(float airspeed, float minspeed, float maxspeed);
 	RCAC RCAC_aw;
+	RCAC RCAC_rate;
 	int RCAC_switch;
+	int RCAC_rate_switch=0;
 };

@@ -150,9 +150,24 @@ void ECL_Controller::set_RCAC_parameters(float P0_val, float lambda_val, int nf_
 	RCAC_aw.init_RCAC();
 }
 
-void ECL_Controller::set_RCAC_switch(int sw){RCAC_switch = sw;}
-int ECL_Controller::get_RCAC_switch(){return RCAC_switch;}
-float ECL_Controller::get_RCAC_theta(int i) {
-float theta_i = RCAC_aw.get_rcac_theta(i);
-return theta_i;
+void ECL_Controller::set_RCAC_rate_parameters(float P0_val, float lambda_val, int nf_val, float N1_val)
+{
+	RCAC_rate.set_RCAC_parameters(P0_val,lambda_val,nf_val,N1_val);
+	RCAC_rate.init_RCAC();
+}
+
+void 	ECL_Controller::set_RCAC_switch(int sw){RCAC_switch = sw;}
+int 	ECL_Controller::get_RCAC_switch(){return RCAC_switch;}
+float 	ECL_Controller::get_RCAC_theta(int i)
+{
+	float theta_i = RCAC_aw.get_rcac_theta(i);
+	return theta_i;
+}
+
+void 	ECL_Controller::set_RCAC_rate_switch(int sw){RCAC_rate_switch = sw;}
+int 	ECL_Controller::get_RCAC_rate_switch(){return RCAC_rate_switch;}
+float 	ECL_Controller::get_RCAC_rate_theta(int i)
+{
+	float theta_i = RCAC_rate.get_rcac_theta(i);
+	return theta_i;
 }

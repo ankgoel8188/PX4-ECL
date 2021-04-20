@@ -42,7 +42,7 @@
 #include <float.h>
 #include <geo/geo.h>
 #include <mathlib/mathlib.h>
-#include <iostream>
+// #include <iostream>
 using namespace std;
 
 float ECL_RollController::control_attitude(const struct ECL_ControlData &ctl_data)
@@ -124,6 +124,11 @@ float ECL_RollController::control_bodyrate(const struct ECL_ControlData &ctl_dat
 	_last_output = _bodyrate_setpoint * _k_ff * ctl_data.scaler +
 		       _rate_error * _k_p * ctl_data.scaler * ctl_data.scaler
 		       + _integrator;  //scaler is proportional to 1/airspeed
+	if (RCAC_rate_switch)
+	{
+		float u_out = RCAC_rate.compute_uk(_rate_error,_integrator,0,_last_output);
+		_last_output = u_out;
+	}
 	// RCAC_aw.getkk();
 	// RCAC_aw.compute_uk(_rate_error,_bodyrate_setpoint,_bodyrate_setpoint,_last_output);
 	// cout << RCAC_aw.getkk() << endl;
