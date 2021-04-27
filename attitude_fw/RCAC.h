@@ -3,11 +3,12 @@
 #pragma once
 // #include "Eigen/Dense"
 // #include "Eigen/Core"
-#include "matrix/math.hpp"
+#include <matrix/math.hpp>
 // #include "Eigen/Sparse"
 // #include <iostream>
 
-using namespace matrix;
+using matrix::eye;
+// using namespace matrix;
 // using namespace std;
 /**
  * The parent RCAC class. This class handles all the low level computation of RCAC

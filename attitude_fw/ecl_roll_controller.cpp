@@ -43,7 +43,7 @@
 #include <geo/geo.h>
 #include <mathlib/mathlib.h>
 // #include <iostream>
-using namespace std;
+// using namespace std;
 
 float ECL_RollController::control_attitude(const struct ECL_ControlData &ctl_data)
 {
